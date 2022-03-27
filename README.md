@@ -7,14 +7,14 @@ This repo contains the `docker-compose` files necessary to run:
 3. `threetwo-metadata-service` and its dependencies
 
 
-#### Pre-requisites
+### Pre-requisites
 
-##### ComicVine
+#### ComicVine
 
 To get ComicVine to work for metadata scraping and other functions, you _must_ have a ComicVine API key.
 You can get one [here.](https://comicvine.gamespot.com/api/) Metadata scraping will not work unless you supply an API key.
 
-##### AirDC++
+#### AirDC++
 
 1. To use AirDC++, you need a working install of... [AirDC++](https://www.airdcpp.net/download)
 2. Then within the UI, you need to set up the connection at `Settings > Acquisition > AirDC++ > Connection`
