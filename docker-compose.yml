@@ -19,6 +19,7 @@ services:
       dockerfile: Dockerfile
     image: frishi/threetwo
     container_name: threetwo-ui
+    env_file: docker-compose.env
     restart: unless-stopped
     ports:
       - "8050:8050"
@@ -51,11 +52,11 @@ services:
   #   networks:
   #     - proxy
 
-  comicvine:
+  metadata-service:
     build:
       context: https://github.com/rishighan/threetwo-metadata-service.git
     image: frishi/threetwo-metadata-service
-    container_name: comicvine-service
+    container_name: metadata-service
     ports:
       - "3080:3080"
     environment:
