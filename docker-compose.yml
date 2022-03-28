@@ -11,6 +11,7 @@ x-comics-volume:
   type: bind
   source: ${COMICS_DIRECTORY}
   target: /comics
+
 services:
   threetwo:
     build: 
@@ -58,6 +59,8 @@ services:
     environment:
       SERVICES: comicvine
     env_file: docker-compose.env
+    depends_on:
+      - redis
     volumes: 
       - *comics-volume
       - *userdata-volume
@@ -81,6 +84,7 @@ services:
     depends_on:
       - redis
       - db
+      - elasticsearch
     networks:
       - proxy
 
