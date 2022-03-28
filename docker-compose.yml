@@ -67,26 +67,26 @@ services:
     networks:
       - proxy
 
-  importapi:
-    build:
-      context: https://github.com/rishighan/threetwo-core-service.git
-    image: frishi/threetwo-core-service
-    container_name: importapi
-    ports:
-      - "3000:3000"
-      - "3001:3001"
-    environment:
-      SERVICES: api
-    env_file: docker-compose.env
-    volumes: 
-      - *comics-volume
-      - *userdata-volume
-    depends_on:
-      - redis
-      - db
-      - elasticsearch
-    networks:
-      - proxy
+  # importapi:
+  #   build:
+  #     context: https://github.com/rishighan/threetwo-core-service.git
+  #   image: frishi/threetwo-core-service
+  #   container_name: importapi
+  #   ports:
+  #     - "3000:3000"
+  #     - "3001:3001"
+  #   environment:
+  #     SERVICES: api
+  #   env_file: docker-compose.env
+  #   volumes: 
+  #     - *comics-volume
+  #     - *userdata-volume
+  #   depends_on:
+  #     - redis
+  #     - db
+  #     - elasticsearch
+  #   networks:
+  #     - proxy
 
   core-services:
     build:
@@ -97,9 +97,12 @@ services:
       - db
       - redis
       - elasticsearch
+    ports:
+      - "3000:3000"
+      - "3001:3001"
     environment:
       name: core-services
-      SERVICES: library,queue,settings,search,imagetransformation
+      SERVICES: api,library,queue,settings,search,imagetransformation
     env_file: docker-compose.env
     volumes: 
       - *comics-volume
