@@ -35,12 +35,13 @@ You can get one [here.](https://comicvine.gamespot.com/api/) Metadata scraping w
 ## Building the stack
 
 1. Clone this repo
-2. Edit the `docker-compose.env` file
+2. Create a network using `docker network create proxy`
+3. Edit the `docker-compose.env` file
    1. Find the hostname of your machine and set the `UNDERLYING_HOSTNAME` to that. For e.g. `UNDERLYING_HOSTNAME=foo`
    2. Set the `COMICS_DIRECTORY` and `USERDATA_DIRECTORY` to the correct _absolute_ paths
    3. Set the `COMICVINE_API` to your ComicVine API key
-3. Save the file
-4. Run the stack using: `env $(cat docker-compose.env | xargs) docker-compose up`
+4. Save the file
+5. Run the stack using: `env $(cat docker-compose.env | xargs) docker-compose up`
 
 
 ## Troubleshooting
