@@ -33,31 +33,33 @@ services:
     networks:
       - proxy
 
-  comicvineapi:
-    build:
-      context: https://github.com/rishighan/threetwo-metadata-service.git
-    image: frishi/threetwo-metadata-service
-    container_name: comicvine-api
-    ports:
-      - "3080:3080"
-    volumes: 
-      - *comics-volume
-      - *userdata-volume
-    environment:
-      SERVICES: api
-    env_file: docker-compose.env
-    depends_on:
-      - redis
-    networks:
-      - proxy
+  # comicvineapi:
+  #   build:
+  #     context: https://github.com/rishighan/threetwo-metadata-service.git
+  #   image: frishi/threetwo-metadata-service
+  #   container_name: comicvine-api
+  #   ports:
+  #     - "3080:3080"
+  #   volumes: 
+  #     - *comics-volume
+  #     - *userdata-volume
+  #   environment:
+  #     SERVICES: api
+  #   env_file: docker-compose.env
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - proxy
 
   comicvine:
     build:
       context: https://github.com/rishighan/threetwo-metadata-service.git
     image: frishi/threetwo-metadata-service
     container_name: comicvine-service
+    ports:
+      - "3080:3080"
     environment:
-      SERVICES: comicvine
+      SERVICES: api,comicvine
     env_file: docker-compose.env
     depends_on:
       - redis
