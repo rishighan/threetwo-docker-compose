@@ -13,7 +13,9 @@ x-comics-volume:
   target: /comics
 services:
   threetwo:
-    build: https://github.com/rishighan/threetwo-docker-compose.git 
+    build: 
+      context: https://github.com/rishighan/threetwo-docker-compose.git 
+      dockerfile: Dockerfile
     image: frishi/threetwo
     container_name: threetwo-ui
     restart: unless-stopped
