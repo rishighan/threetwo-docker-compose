@@ -13,12 +13,10 @@ x-comics-volume:
   target: /comics
 services:
   threetwo:
-    build:
-      context: https://github.com/rishighan/threetwo-docker-compose.git 
+    build: https://github.com/rishighan/threetwo-docker-compose.git 
     image: frishi/threetwo
     container_name: threetwo-ui
     restart: unless-stopped
-    
     ports:
       - "8050:8050"
       - "3050:3050"
