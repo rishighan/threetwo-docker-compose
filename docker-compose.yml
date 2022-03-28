@@ -14,7 +14,7 @@ x-comics-volume:
 services:
   threetwo:
     build:
-      context: . 
+      context: https://github.com/rishighan/threetwo-docker-compose.git 
     image: frishi/threetwo
     container_name: threetwo-ui
     restart: unless-stopped
