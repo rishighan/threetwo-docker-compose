@@ -25,7 +25,7 @@ services:
       - "8050:8050"
       - "3050:3050"
     links:
-      - core-api
+      - core-services
     depends_on:
       - db
       - elasticsearch
@@ -105,7 +105,7 @@ services:
       - elasticsearch
     environment:
       name: core-services
-      SERVICES: library,queue,settings,search,imagetransformation
+      SERVICES: api,library,queue,settings,search,imagetransformation
     env_file: docker-compose.env
     volumes: 
       - *comics-volume
