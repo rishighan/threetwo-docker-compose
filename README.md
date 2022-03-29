@@ -19,6 +19,15 @@ You need 2 folders:
 
 1. `comics` will contain your... comics
 2. `userdata` will be used by the app to create app-specific files
+3. The structure should be like so:
+
+   ```
+   - comics
+   - userdata
+     |- covers
+     |- expanded
+     |- temporary
+   ```
 
 
 #### ComicVine
@@ -43,11 +52,17 @@ You can get one [here.](https://comicvine.gamespot.com/api/) Metadata scraping w
 4. Save the file
 5. Run the stack using: `env $(cat docker-compose.env | xargs) docker-compose up`
 
+### Ports
+
+1. `threetwo`, the UI runs on port `8050`
+2. `threetwo-core-service` service on `3000`
+3. `threetwo-metadata-service` service on `3080`
+
 
 ## Troubleshooting
 
 General
 
 1. Some common problems can be traced to out-of-date images, and as such can be mitigated by simply pruning orphaned images: `docker system prune -a`
-2. 
+2. Always check the logs of the offending service, `docker logs --follow <servicename>`
 
