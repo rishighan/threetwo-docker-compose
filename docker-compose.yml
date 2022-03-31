@@ -4,7 +4,7 @@ x-userdata-volume:
   &userdata-volume
   type: bind
   source: ${USERDATA_DIRECTORY}
-  target: /userdata 
+  target: /userdata
 
 x-comics-volume:
   &comics-volume
@@ -14,7 +14,7 @@ x-comics-volume:
 
 services:
   threetwo:
-    build: 
+    build:
       context: https://github.com/rishighan/threetwo.git
       dockerfile: Dockerfile
     image: frishi/threetwo
@@ -30,10 +30,8 @@ services:
       - db
       - elasticsearch
       - redis
-      
     networks:
       - proxy
-
 
   metadata-service:
     build:
@@ -47,7 +45,7 @@ services:
     env_file: docker-compose.env
     depends_on:
       - redis
-    volumes: 
+    volumes:
       - *comics-volume
       - *userdata-volume
     networks:
@@ -69,10 +67,10 @@ services:
       name: core-services
       SERVICES: api,library,importqueue,settings,search,imagetransformation
     env_file: docker-compose.env
-    volumes: 
+    volumes:
       - *comics-volume
       - *userdata-volume
-      
+
     networks:
       - proxy
 
@@ -111,11 +109,12 @@ services:
         hard: -1
     ports:
       - 9200:9200
+    networks:
+      - proxy
 
 networks:
   proxy:
     external: true
-
 
 volumes:
   mongodb_data:
