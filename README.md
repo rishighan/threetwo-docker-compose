@@ -54,7 +54,7 @@ You can get one [here.](https://comicvine.gamespot.com/api/) Metadata scraping w
 
 ### Ports
 
-1. `threetwo`, the UI runs on port `8050`
+1. `threetwo`, the UI runs on port `5173`
 2. `threetwo-core-service` service on `3000`
 3. `threetwo-metadata-service` service on `3080`
 

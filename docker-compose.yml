@@ -4,7 +4,7 @@ x-userdata-volume:
   &userdata-volume
   type: bind
   source: ${USERDATA_DIRECTORY}
-  target: /userdata
+  target: /userdata 
 
 x-comics-volume:
   &comics-volume
@@ -22,8 +22,7 @@ services:
     env_file: docker-compose.env
     restart: unless-stopped
     ports:
-      - "8050:8050"
-      - "3050:3050"
+      - "5173:5173"
     links:
       - core-services
     depends_on:
@@ -75,7 +74,7 @@ services:
       - proxy
 
   db:
-    image: "bitnami/mongodb:latest"
+    image: "bitnami/mongodb:4.4.4"
     container_name: database
     networks:
       - proxy
@@ -95,7 +94,7 @@ services:
       - "6379:6379"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
     container_name: elasticsearch
     environment:
       - "discovery.type=single-node"
@@ -115,6 +114,7 @@ services:
 networks:
   proxy:
     external: true
+    name: proxy
 
 volumes:
   mongodb_data:
