@@ -1,13 +1,11 @@
 version: "3.7"
 
-x-userdata-volume:
-  &userdata-volume
+x-userdata-volume: &userdata-volume
   type: bind
   source: ${USERDATA_DIRECTORY}
   target: /userdata
 
-x-comics-volume:
-  &comics-volume
+x-comics-volume: &comics-volume
   type: bind
   source: ${COMICS_DIRECTORY}
   target: /comics
@@ -24,6 +22,7 @@ services:
     ports:
       - "8050:8050"
       - "3050:3050"
+      - "5173:5173"
     links:
       - core-services
     depends_on:
