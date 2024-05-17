@@ -5,6 +5,7 @@ This repo contains the `docker-compose` files necessary to run:
 1. ThreeTwo UI
 2. `threetwo-core-service` and its dependencies
 3. `threetwo-metadata-service` and its dependencies
+4. `threetwo-acquisition-service` and its dependencies
 
 
 ### Pre-requisites
@@ -24,11 +25,7 @@ You need 2 folders:
    ```
    - comics
    - userdata
-     |- covers
-     |- expanded
-     |- temporary
    ```
-
 
 #### ComicVine
 
@@ -49,12 +46,21 @@ You can get one [here.](https://comicvine.gamespot.com/api/) Metadata scraping w
    1. Find the hostname of your machine and set the `UNDERLYING_HOSTNAME` to that. For e.g. `UNDERLYING_HOSTNAME=foo`
    2. Set the `COMICS_DIRECTORY` and `USERDATA_DIRECTORY` to the correct _absolute_ paths
    3. Set the `COMICVINE_API` to your ComicVine API key
+   4. To summarize, these are the only variables you need to configure:
+      ```
+       UNDERLYING_HOSTNAME=myhost
+       
+       COMICS_DIRECTORY=/path/to/comics
+       USERDATA_DIRECTORY=/path/to/userdata
+       
+       COMICVINE_API_KEY=onethreetwo
+      ```
 4. Save the file
 5. Run the stack using: `env $(cat docker-compose.env | xargs) docker-compose up`
 
 ### Ports
 
-1. `threetwo`, the UI runs on port `8050`
+1. `threetwo`, the UI runs on port `5173`
 2. `threetwo-core-service` service on `3000`
 3. `threetwo-metadata-service` service on `3080`
 
@@ -65,4 +71,12 @@ General
 
 1. Some common problems can be traced to out-of-date images, and as such can be mitigated by simply pruning orphaned images: `docker system prune -a`
 2. Always check the logs of the offending service, `docker logs --follow <servicename>`
+3. Once the stack is up, assuming everything went well, look for `threetwo-ui` service's logs to see something like:
+
+   ```
+   threetwo-ui       |   VITE v5.2.7  ready in 145 ms
+   threetwo-ui       |
+   threetwo-ui       |   ➜  Local:   http://localhost:5173/
+   threetwo-ui       |   ➜  Network: http://172.30.0.9:5173/
+```
 

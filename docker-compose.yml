@@ -68,7 +68,7 @@ services:
       - zookeeper
     environment:
       name: core-services
-      SERVICES: api,library,jobqueue,settings,search,socket,imagetransformation,torrentjobs,opds
+      SERVICES: api,library,imagetransformation,opds,search,settings,jobqueue,socket,torrentjobs
     env_file: docker-compose.env
     volumes:
       - *comics-volume
@@ -103,7 +103,7 @@ services:
       - proxy
 
   db:
-    image: "bitnami/mongodb:latest"
+    image: "mongo:latest"
     container_name: database
     networks:
       - proxy
