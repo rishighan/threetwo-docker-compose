@@ -1,144 +1,45 @@
 version: "3.7"
 
-x-userdata-volume: &userdata-volume
-  type: bind
-  source: ${USERDATA_DIRECTORY}
-  target: /userdata
-
-x-comics-volume: &comics-volume
-  type: bind
-  source: ${COMICS_DIRECTORY}
-  target: /comics
-
 services:
-  threetwo:
-    build:
-      context: https://github.com/rishighan/threetwo.git
-      dockerfile: Dockerfile
-    image: frishi/threetwo
-    container_name: threetwo-ui
-    env_file: docker-compose.env
-    restart: unless-stopped
-    ports:
-      - "8050:8050"
-      - "3050:3050"
-      - "5173:5173"
-    links:
-      - core-services
-    depends_on:
-      - db
-      - elasticsearch
-      - redis
-      - kafka
-      - zookeeper
-    networks:
-      - proxy
-
-  metadata-service:
-    build:
-      context: https://github.com/rishighan/threetwo-metadata-service.git
-    image: frishi/threetwo-metadata-service
-    container_name: metadata-service
-    ports:
-      - "3080:3080"
-    environment:
-      SERVICES: api,comicvine
-    env_file: docker-compose.env
-    depends_on:
-      - redis
-    volumes:
-      - *comics-volume
-      - *userdata-volume
-    networks:
-      - proxy
-
-  core-services:
-    build:
-      context: https://github.com/rishighan/threetwo-core-service.git
-    image: frishi/threetwo-core-service
-    container_name: core-services
-    ports:
-      - "3000:3000"
-      - "3001:3001"
-    depends_on:
-      - db
-      - redis
-      - elasticsearch
-      - kafka
-      - zookeeper
-    environment:
-      name: core-services
-      SERVICES: api,library,imagetransformation,opds,search,settings,jobqueue,socket,torrentjobs
-    env_file: docker-compose.env
-    volumes:
-      - *comics-volume
-      - *userdata-volume
-
-    networks:
-      - proxy
 
   zookeeper:
-    image: zookeeper:latest
-    container_name: zookeeper
+    image: bitnami/zookeeper:latest
+    restart: on-failure
     ports:
       - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zookeeper:2888:3888
+      ALLOW_ANONYMOUS_LOGIN: "yes"
     networks:
-      - proxy
-
+    - proxy
+  
   kafka:
-    image: apache/kafka:latest
-    container_name: kafka
+    image: bitnami/kafka:latest
+    restart: on-failure
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
     depends_on:
       - zookeeper
     networks:
-      - proxy
+    - proxy
 
-  db:
-    image: "mongo:latest"
-    container_name: database
-    networks:
-      - proxy
-    ports:
-      - "27017:27017"
-    volumes:
-      - "mongodb_data:/bitnami/mongodb"
-
-  redis:
-    image: "bitnami/redis:latest"
-    container_name: queue
-    environment:
-      ALLOW_EMPTY_PASSWORD: "yes"
-    networks:
-      - proxy
-    ports:
-      - "6379:6379"
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-    container_name: elasticsearch
-    environment:
-      - "discovery.type=single-node"
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "xpack.security.enabled=true"
-      - "xpack.security.authc.api_key.enabled=true"
-      - "ELASTIC_PASSWORD=password"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    ports:
-      - 9200:9200
-    networks:
-      - proxy
 
 networks:
   proxy:
