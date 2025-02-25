@@ -6,6 +6,7 @@ This repo contains the `docker-compose` files necessary to run:
 2. `threetwo-core-service` and its dependencies
 3. `threetwo-metadata-service` and its dependencies
 4. `threetwo-acquisition-service` and its dependencies
+5. `elasticsearch`, `kafka`, `zookeeper`, `mongo` and `redis`
 
 
 ### Pre-requisites
