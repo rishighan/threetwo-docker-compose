@@ -18,8 +18,7 @@ services:
     env_file: docker-compose.env
     restart: unless-stopped
     ports:
-      - "8050:8050"
-      - "3050:3050"
+      - "5173:5173"
     depends_on:
       - core-services
       - kafka1
