@@ -1,15 +1,11 @@
-version: "3.7"
-
-x-userdata-volume:
-  &userdata-volume
+x-userdata-volume: &userdata-volume
   type: bind
-  source: ${USERDATA_DIRECTORY}
+  source: ${USERDATA_DIRECTORY:?USERDATA_DIRECTORY not set}
   target: /userdata
 
-x-comics-volume:
-  &comics-volume
+x-comics-volume: &comics-volume
   type: bind
-  source: ${COMICS_DIRECTORY}
+  source: ${COMICS_DIRECTORY:?COMICS_DIRECTORY not set}
   target: /comics
 
 services:
@@ -24,11 +20,12 @@ services:
     ports:
       - "8050:8050"
       - "3050:3050"
-    links:
-      - core-services
     depends_on:
-      - db
+      - core-services
+      - kafka1
+      - zoo1
       - elasticsearch
+      - db
       - redis
     networks:
       - proxy
@@ -45,6 +42,32 @@ services:
     env_file: docker-compose.env
     depends_on:
       - redis
+      - kafka1
+      - zoo1
+      - elasticsearch
+      - db
+    volumes:
+      - *comics-volume
+      - *userdata-volume
+    networks:
+      - proxy
+
+  acquisition-service:
+    build:
+      context: https://github.com/rishighan/threetwo-acquisition-service.git
+    image: frishi/threetwo-acquisition-service
+    container_name: acquisition-service
+    ports:
+      - "3060:3060"
+    environment:
+      SERVICES: api,autodownload,comicProcessor,prowlarr,qbittorrent
+    env_file: docker-compose.env
+    depends_on:
+      - redis
+      - kafka1
+      - zoo1
+      - elasticsearch
+      - db
     volumes:
       - *comics-volume
       - *userdata-volume
@@ -63,6 +86,8 @@ services:
       - db
       - redis
       - elasticsearch
+      - kafka1
+      - zoo1
     environment:
       name: core-services
       SERVICES: api,library,importqueue,settings,search,socket,imagetransformation,opds
@@ -70,22 +95,21 @@ services:
     volumes:
       - *comics-volume
       - *userdata-volume
-
     networks:
       - proxy
 
   db:
-    image: "bitnami/mongodb:latest"
+    image: "arm64v8/mongo:latest"
     container_name: database
     networks:
       - proxy
     ports:
       - "27017:27017"
     volumes:
-      - "mongodb_data:/bitnami/mongodb"
+      - "mongodb_data:/data/db"
 
   redis:
-    image: "bitnami/redis:latest"
+    image: "redis:6.2.6-alpine3.14"  # ARM64 supported version
     container_name: queue
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
@@ -94,27 +118,67 @@ services:
     ports:
       - "6379:6379"
 
+  zoo1:
+    image: "arm64v8/zookeeper:3.7.0"
+    hostname: zoo1
+    container_name: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_SERVERS: zoo1:2888:3888
+    networks:
+      - proxy
+
+  kafka1:
+    image: bitnami/kafka:latest
+    hostname: kafka1
+    container_name: kafka1
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+      - "9999:9999"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zoo1:2181
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT 
+      KAFKA_ZOOKEEPER_PROTOCOL: PLAINTEXT
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CFG_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_CFG_JMX_PORT: 9999
+    depends_on:
+      - zoo1
+    networks:
+      - proxy
+
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.26-arm64
     container_name: elasticsearch
     environment:
       - "discovery.type=single-node"
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "xpack.security.enabled=true"
-      - "xpack.security.authc.api_key.enabled=true"
-      - "ELASTIC_PASSWORD=password"
+      - "xpack.security.enabled=false"
+      - "xpack.security.authc.api_key.enabled=false"
+      - "ES_JAVA_OPTS="
     ulimits:
       memlock:
         soft: -1
         hard: -1
     ports:
-      - 9200:9200
+      - "9200:9200"
+    volumes:
+      - "elasticsearch:/usr/share/elasticsearch/data"
     networks:
       - proxy
 
 networks:
   proxy:
-    external: true
+    driver: bridge
 
 volumes:
   mongodb_data:
